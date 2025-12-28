@@ -7,11 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
+@CrossOrigin(origins = "*") // Allows React/Angular to connect
 public class CustomerController {
 
     @Autowired
@@ -19,62 +19,43 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) {
-        Customer created = customerService.addCustomer(customer);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+        return new ResponseEntity<>(customerService.addCustomer(customer), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Customer>> getAllCustomers() {
-        return new ResponseEntity<>(customerService.getAllCustomers(), HttpStatus.OK);
-    }
+    public List<Customer> getAllCustomers() { return customerService.getAllCustomers(); }
 
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable int id) {
-        return new ResponseEntity<>(customerService.getCustomerById(id), HttpStatus.OK);
+        Customer c = customerService.getCustomerById(id);
+        return c != null ? ResponseEntity.ok(c) : ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Customer> updateCustomer(@PathVariable int id, @RequestBody Customer customer) {
-        return new ResponseEntity<>(customerService.updateCustomer(id, customer), HttpStatus.OK);
+        Customer updated = customerService.updateCustomer(id, customer);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCustomer(@PathVariable int id) {
-        
+    public ResponseEntity<Void> deleteCustomer(@PathVariable int id) {
+        return customerService.deleteCustomer(id) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/page/{offset}/{pageSize}")
-    public ResponseEntity<Page<Customer>> getCustomersPage(@PathVariable int offset, @PathVariable int pageSize) {
-        return new ResponseEntity<>(customerService.getCustomersByPage(offset, pageSize), HttpStatus.OK);
+    @GetMapping("/page/{page}/{size}")
+    public ResponseEntity<Page<Customer>> getCustomersPaginated(@PathVariable int page, @PathVariable int size) {
+        return ResponseEntity.ok(customerService.getCustomersWithPagination(page, size));
     }
-
-    
-
     
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getCustomerByEmail(@PathVariable String email) {
-        Customer customer = customerService.getCustomerByEmail(email);
-        if (customer != null) {
-            return new ResponseEntity<>(customer, HttpStatus.OK);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Customer not found with email: " + email);
-        }
+        Customer c = customerService.getCustomerByEmail(email);
+        return c != null ? ResponseEntity.ok(c) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found with email: " + email);
     }
 
-   
-    @GetMapping("/creditScore/{score}")
-    public ResponseEntity<?> getCustomersByCreditScore(@PathVariable Double score) {
-        List<Customer> customers = customerService.getCustomersByCreditScore(score);
-        if (customers.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No customers found with credit score >= " + score);
-        }
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+    @GetMapping("/creditScore/{creditScore}")
+    public ResponseEntity<?> getCustomersByCreditScore(@PathVariable Double creditScore) {
+        List<Customer> list = customerService.getCustomersByCreditScore(creditScore);
+        return list.isEmpty() ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("No customers found") : ResponseEntity.ok(list);
     }
-
-
-
-
-    
 }

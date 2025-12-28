@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/loantypes")
+@CrossOrigin(origins = "*")
 public class LoanTypeController {
 
     @Autowired
@@ -22,12 +22,11 @@ public class LoanTypeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LoanType>> getAllLoanTypes() {
-        return new ResponseEntity<>(loanTypeService.getAllLoanTypes(), HttpStatus.OK);
-    }
+    public List<LoanType> getAllLoanTypes() { return loanTypeService.getAllLoanTypes(); }
 
     @PutMapping("/{id}")
     public ResponseEntity<LoanType> updateLoanType(@PathVariable int id, @RequestBody LoanType loanType) {
-        return new ResponseEntity<>(loanTypeService.updateLoanType(id, loanType), HttpStatus.OK);
+        LoanType updated = loanTypeService.updateLoanType(id, loanType);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
 }

@@ -1,11 +1,12 @@
 package com.examly.springapp.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class Loan {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int loanId;
     private Double loanAmount;
     private Double interestRate;
@@ -14,6 +15,7 @@ public class Loan {
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
+    @JsonIgnoreProperties("loans")
     private Customer customer;
 
     @ManyToOne

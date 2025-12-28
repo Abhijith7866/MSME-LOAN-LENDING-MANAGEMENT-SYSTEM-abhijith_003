@@ -1,20 +1,22 @@
 package com.examly.springapp.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 
 @Entity
 public class Customer {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int customerId;
     private String customerName;
     private String email;
     private String phoneNumber;
     private String address;
     private Double creditScore;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Loan> loans;
 
     public Customer() {}
 
@@ -39,4 +41,6 @@ public class Customer {
     public void setAddress(String address) { this.address = address; }
     public Double getCreditScore() { return creditScore; }
     public void setCreditScore(Double creditScore) { this.creditScore = creditScore; }
+    public List<Loan> getLoans() { return loans; }
+    public void setLoans(List<Loan> loans) { this.loans = loans; }
 }

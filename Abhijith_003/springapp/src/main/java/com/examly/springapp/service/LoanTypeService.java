@@ -11,16 +11,15 @@ public class LoanTypeService {
     @Autowired
     private LoanTypeRepo loanTypeRepo;
 
-    public LoanType addLoanType(LoanType loanType) {
-        return loanTypeRepo.save(loanType);
-    }
-
-    public List<LoanType> getAllLoanTypes() {
-        return loanTypeRepo.findAll();
-    }
-
-    public LoanType updateLoanType(int id, LoanType loanType) {
-        loanType.setLoanTypeId(id);
-        return loanTypeRepo.save(loanType);
+    public LoanType addLoanType(LoanType loanType) { return loanTypeRepo.save(loanType); }
+    public List<LoanType> getAllLoanTypes() { return loanTypeRepo.findAll(); }
+    
+    public LoanType updateLoanType(int id, LoanType details) {
+        return loanTypeRepo.findById(id).map(type -> {
+            type.setTypeName(details.getTypeName());
+            type.setDescription(details.getDescription());
+            type.setInterestRate(details.getInterestRate());
+            return loanTypeRepo.save(type);
+        }).orElse(null);
     }
 }

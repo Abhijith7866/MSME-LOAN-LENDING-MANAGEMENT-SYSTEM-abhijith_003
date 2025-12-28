@@ -12,23 +12,22 @@ public class LoanService {
     private LoanRepo loanRepo;
 
     public Loan addLoan(Loan loan) {
+        if (loan.getStatus() == null || loan.getStatus().isEmpty()) {
+            loan.setStatus("PENDING");
+        }
         return loanRepo.save(loan);
     }
 
-    public List<Loan> getAllLoans() {
-        return loanRepo.findAll();
-    }
+    public List<Loan> getAllLoans() { return loanRepo.findAll(); }
+    public Loan getLoanById(int id) { return loanRepo.findById(id).orElse(null); }
+    public List<Loan> getLoansByStatus(String status) { return loanRepo.findByStatus(status); }
 
-    public Loan getLoanById(int id) {
-        return loanRepo.findById(id).orElse(null);
-    }
-
-    public Loan updateLoan(int id, Loan loan) {
-        loan.setLoanId(id);
-        return loanRepo.save(loan);
-    }
-
-    public List<Loan> getLoansByStatus(String status) {
-        return loanRepo.findByStatus(status);
+    public Loan updateLoan(int id, Loan details) {
+        return loanRepo.findById(id).map(loan -> {
+            if(details.getLoanAmount() != null) loan.setLoanAmount(details.getLoanAmount());
+            if(details.getStatus() != null) loan.setStatus(details.getStatus());
+            if(details.getTenureMonths() > 0) loan.setTenureMonths(details.getTenureMonths());
+            return loanRepo.save(loan);
+        }).orElse(null);
     }
 }
